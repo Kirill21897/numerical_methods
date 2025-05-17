@@ -85,7 +85,7 @@ class Vector
         Vector rez = new Vector(size);
         double d = Norma1();
         for (int i = 0; i < size; i++)
-            rez.data[i] = (d != 0) ? data[i] / d : 0; 
+            rez.data[i] = (d != 0) ? data[i] / d : 0;
         return rez;
     }
 
@@ -118,13 +118,13 @@ class Vector
         return rez;
     }
 
-        public static Vector operator +(Vector a, Vector b)
+    public static Vector operator +(Vector a, Vector b)
     {
         if (a.size == b.size)
         {
             Vector c = new Vector(a.size);
             for (int i = 0; i < a.size; i++)
-                c[i] = a[i] + b[i]; 
+                c[i] = a[i] + b[i];
             return c;
         }
         throw new ArgumentException("Vectors must be of the same size.");
@@ -136,7 +136,7 @@ class Vector
         {
             Vector c = new Vector(a.size);
             for (int i = 0; i < a.size; i++)
-                c[i] = a[i] - b[i]; 
+                c[i] = a[i] - b[i];
             return c;
         }
         throw new ArgumentException("Vectors must be of the same size.");
@@ -169,4 +169,20 @@ class Vector
         }
         throw new ArgumentException("Vectors must be of the same size.");
     }
+    
+    // Перегрузка оператора деления Vector / double
+    public static Vector operator /(Vector a, double c)
+    {
+        Vector result = new Vector(a.Size);
+        for (int i = 0; i < a.Size; i++)
+            result[i] = a[i] / c;
+        return result;
+    }
+
+    // Перегрузка Vector / int через Vector / double
+    public static Vector operator /(Vector a, int c)
+    {
+        return a / (double)c;
+    }
+
 }

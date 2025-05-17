@@ -10,7 +10,7 @@ class Program
     {
         bool flag = true;
         while (flag){
-            Console.WriteLine("Выберете тест:\n1) Нахождение корня\n2) Вектора\n3) Матрицы\n4) Сплайн\n5) Метод наименьших квадратов\n6) Выход");
+            Console.WriteLine("Выберете тест:\n1) Нахождение корня\n2) Вектора\n3) Матрицы\n4) Сплайн\n5) Метод наименьших квадратов\n6) Дифференциальные уравнения\n7) Выход");
             string ex_string = Console.ReadLine()!;
             int ex_number = int.Parse(ex_string);
             switch(ex_number){
@@ -333,6 +333,65 @@ class Program
                     break;
 
                 case 6:
+                    Console.WriteLine("\n-----Дифференциальные уравнения-----");
+                    // Начальные данные
+                    Vector initialState = new Vector(new double[] { 1, 0 }); // x0 = 1, v0 = 0
+                    double t0 = 0;
+                    double tEnd = 10;
+                    int steps = 100;
+
+                    Console.WriteLine("Рассмотрим движение гармонического осциллятора — это как маятник или пружина.");
+                    Console.WriteLine("Уравнение: x'' = -x\n");
+                    Console.WriteLine("Начальные условия:");
+                    Console.WriteLine("x(0) = 1   (начальное положение)");
+                    Console.WriteLine("v(0) = 0   (начальная скорость)\n");
+                    Console.WriteLine("Мы будем решать это уравнение на интервале от t=0 до t=10,");
+                    Console.WriteLine("с шагом по времени и с использованием нескольких численных методов.\n");
+
+                    // Запускаем метод Рунге–Кутты 4-го порядка
+                    Matrix resultRK4 = EquationSolver.SolveRungeKutta4(t0, tEnd, initialState, steps, EquationSolver.Oscillator);
+
+                    Console.WriteLine("Метод Рунге–Кутты 4-го порядка — самый точный из используемых.");
+                    Console.WriteLine("t       | Положение (x)    | Скорость (v)");
+                    Console.WriteLine("--------------------------------------------------");
+                    for (int i = 0; i <= steps; i += steps / 10)
+                    {
+                        Vector col = resultRK4.GetColumn(i);
+                        Console.WriteLine($"{col[0]:F2}     | {col[1]:F6}        | {col[2]:F6}");
+                    }
+                    Console.WriteLine("\n...");
+
+                    // Метод Эйлера
+                    Matrix resultEuler = EquationSolver.SolveEuler(t0, tEnd, initialState, steps, EquationSolver.Oscillator);
+
+                    Console.WriteLine("\nМетод Эйлера — простой, но менее точный.");
+                    Console.WriteLine("t       | Положение (x)    | Скорость (v)");
+                    Console.WriteLine("--------------------------------------------------");
+                    for (int i = 0; i <= steps; i += steps / 10)
+                    {
+                        Vector col = resultEuler.GetColumn(i);
+                        Console.WriteLine($"{col[0]:F2}     | {col[1]:F6}        | {col[2]:F6}");
+                    }
+                    Console.WriteLine("\n...");
+
+                    // Метод Адамса
+                    Matrix resultAdams = EquationSolver.SolveAdams(t0, tEnd, initialState, steps, EquationSolver.Oscillator);
+
+                    Console.WriteLine("\nМетод Адамса — многошаговый, требует начального приближения.");
+                    Console.WriteLine("t       | Положение (x)    | Скорость (v)");
+                    Console.WriteLine("--------------------------------------------------");
+                    for (int i = 0; i <= steps; i += steps / 10)
+                    {
+                        Vector col = resultAdams.GetColumn(i);
+                        Console.WriteLine($"{col[0]:F2}     | {col[1]:F6}        | {col[2]:F6}");
+                    }
+
+                    Console.WriteLine("-----------------");
+
+                    flag = false;
+                    break;
+                
+                case 7:
                     flag = false;
                     break;
 
