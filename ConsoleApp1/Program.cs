@@ -10,7 +10,7 @@ class Program
     {
         bool flag = true;
         while (flag){
-            Console.WriteLine("Выберете тест:\n1) Нахождение корня\n2) Вектора\n3) Матрицы\n4) Сплайн\n5) Метод наименьших квадратов\n6) Дифференциальные уравнения\n7) Выход");
+            Console.WriteLine("Выберете тест:\n1) Нахождение корня\n2) Вектора\n3) Матрицы\n4) Сплайн\n5) Метод наименьших квадратов\n6) Дифференциальные уравнения\n7) Интегралы\n8) Выход");
             string ex_string = Console.ReadLine()!;
             int ex_number = int.Parse(ex_string);
             switch(ex_number){
@@ -392,6 +392,36 @@ class Program
                     break;
                 
                 case 7:
+                    // === Целевая функция для интегрирования: f(x) = sin(x)
+                    static double Function(double x) => Math.Sin(x);
+                    // === Точное значение интеграла от sin(x): ∫sin(x)dx = -cos(b) + cos(a)
+                    static double ExactIntegral(double a, double b) => -Math.Cos(b) + Math.Cos(a);
+
+                    double a = 0;
+                    double b = Math.PI;
+
+                    // Точное значение
+                    double exact = ExactIntegral(a, b);
+
+                    // Вычисление
+                    double rect = IntegralMethods.MidpointIntegral(a, b, 1e-6, Function);
+                    double trap = IntegralMethods.TrapezoidIntegral(a, b, 1e-6, Function);
+                    double simp = IntegralMethods.SimpsonIntegral(a, b, 1e-6, Function);
+
+                    // Вывод результата
+                    Console.WriteLine("=== Численное интегрирование функции f(x) = sin(x) ===");
+                    Console.WriteLine($"Интеграл на интервале [{a:F4}, {b:F4}]");
+                    Console.WriteLine();
+                    Console.WriteLine($"Метод прямоугольников: {rect:F8}");
+                    Console.WriteLine($"Метод трапеций:       {trap:F8}");
+                    Console.WriteLine($"Метод Симпсона:        {simp:F8}");
+                    Console.WriteLine($"Точное значение:        {exact:F8}");
+                    Console.WriteLine($"Погрешность (Симпсон):  {Math.Abs(simp - exact):F8}");
+
+                    flag = false;
+                    break;
+
+                case 8:
                     flag = false;
                     break;
 
