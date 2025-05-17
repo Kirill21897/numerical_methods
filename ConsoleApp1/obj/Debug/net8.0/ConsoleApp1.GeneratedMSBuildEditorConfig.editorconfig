@@ -8,6 +8,6 @@ build_property.PlatformNeutralAssembly =
 build_property.EnforceExtendedAnalyzerRules = 
 build_property._SupportedPlatformList = Linux,macOS,Windows
 build_property.RootNamespace = ConsoleApp1
-build_property.ProjectDir = C:\Users\bogda\Desktop\Study\Лабораторные по ЧМ и АиСД\ЧМ\ConsoleApp1\ConsoleApp1\
+build_property.ProjectDir = /home/kirill050905/projects/Uiniversity/numerical_methods/ConsoleApp1/
 build_property.EnableComHosting = 
 build_property.EnableGeneratedComInterfaceComImportInterop = 

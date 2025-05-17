@@ -10,7 +10,7 @@ class Program
     {
         bool flag = true;
         while (flag){
-            Console.WriteLine("Выберете тест:\n1) Нахождение корня\n2) Вектора\n3) Матрицы\n4) Выход");
+            Console.WriteLine("Выберете тест:\n1) Нахождение корня\n2) Вектора\n3) Матрицы\n4) Сплайн\n5) Выход");
             string ex_string = Console.ReadLine()!;
             int ex_number = int.Parse(ex_string);
             switch(ex_number){
@@ -285,6 +285,22 @@ class Program
 
 
                 case 4:
+                    Console.WriteLine("\n-----Сплайн-----");
+                    double[] x = { 0, 1, 2, 3, 4 };
+                    double[] y = { 0, 1, 4, 9, 16 };
+
+                    var spline = new Spline(x, y);
+
+                    for (double xi = 0; xi <= 4; xi += 0.5)
+                    {
+                        Console.WriteLine($"x = {xi:F2}, y = {spline.Interpolate(xi):F4}");
+                    }
+                    Console.WriteLine("-----------------");
+
+                    flag = false;
+                    break;
+
+                case 5:
                     flag = false;
                     break;
 
