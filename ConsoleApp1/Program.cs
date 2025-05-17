@@ -10,7 +10,7 @@ class Program
     {
         bool flag = true;
         while (flag){
-            Console.WriteLine("Выберете тест:\n1) Нахождение корня\n2) Вектора\n3) Матрицы\n4) Сплайн\n5) Выход");
+            Console.WriteLine("Выберете тест:\n1) Нахождение корня\n2) Вектора\n3) Матрицы\n4) Сплайн\n5) Метод наименьших квадратов\n6) Выход");
             string ex_string = Console.ReadLine()!;
             int ex_number = int.Parse(ex_string);
             switch(ex_number){
@@ -301,6 +301,38 @@ class Program
                     break;
 
                 case 5:
+                    Console.WriteLine("\n-----МНК-----");
+                    Vector x_ = new Vector(new double[] { 0.0, 1.0, 2.0, 3.0, 4.0 });
+                    Vector y_ = new Vector(new double[] { 1.1, 2.9, 5.0, 8.8, 16.2 }); 
+
+                    
+                    NaimQuadrat.PsiFunction[] basisFunctions = new NaimQuadrat.PsiFunction[]
+                    {
+                        val => 1,          
+                        val => val,        
+                        val => val * val   
+                    };
+
+                    NaimQuadrat nq = new NaimQuadrat(x_, y_, basisFunctions);
+
+                    Console.WriteLine("Найденные параметры (коэффициенты):");
+                    Console.WriteLine(nq.parameters);
+
+                    Console.WriteLine("Значение функционала (невязка):");
+                    Console.WriteLine(nq.GetCriterion());
+
+                    Console.WriteLine("Предсказанные значения:");
+                    for (int i = 0; i < x_.Size; i++)
+                    {
+                        double predicted = nq.parameters * nq.GetFunctionValues(x_[i]);
+                        Console.WriteLine($"x = {x_[i]} -> y_pred = {predicted:F4}");
+                    }
+                    Console.WriteLine("-----------------");
+
+                    flag = false;
+                    break;
+
+                case 6:
                     flag = false;
                     break;
 
