@@ -1,68 +1,86 @@
+using ConsoleChMethod;
+
 public class Spline
 {
-    private readonly double[] x;
-    private readonly double[] y;
+    // Узлы сетки по X и Y
+    readonly Vector x;
+    readonly Vector y;
 
-    private int intervalCount;
-    private double[] coeffA, coeffB, coeffC, coeffD;
+    // Количество интервалов между узлами
+    int intervalCount;
 
-    public Spline(double[] x, double[] y)
+    // Коэффициенты кубического сплайна
+    Vector coeffA = new Vector(0);  // A
+    Vector coeffB = new Vector(0);  // B
+    Vector coeffC = new Vector(0);  // C
+    Vector coeffD = new Vector(0);  // D
+
+    // Конструктор: принимает точки (x, y) и строит сплайн
+    public Spline(Vector x, Vector y)
     {
-        this.x = (double[])x.Clone(); 
-        this.y = (double[])y.Clone();
+        this.x = x.Copy();
+        this.y = y.Copy();
 
-        if (x.Length != y.Length)
+        if (x.GetSize() != y.GetSize())
             throw new ArgumentException("Количество аргументов не совпадает с количеством значений функции");
 
-        intervalCount = x.Length - 1;
-        coeffC = new double[intervalCount];
+        intervalCount = x.GetSize() - 1;  // Число интервалов на 1 меньше числа точек
 
-        CreateSpline();
+        CreateSpline();  // Построение сплайна
     }
 
+    // Метод построения кубического сплайна
     private void CreateSpline()
     {
+        // Вычисляем длины интервалов между соседними точками
         double[] intervalLengths = new double[intervalCount];
         for (int i = 0; i < intervalCount; i++)
             intervalLengths[i] = x[i + 1] - x[i];
 
-        coeffA = new double[intervalCount];
+        // Инициализируем коэффициенты A: A[i] = y[i+1]
+        coeffA = new Vector(intervalCount);
         for (int i = 0; i < intervalCount; i++)
             coeffA[i] = y[i + 1];
 
+        // diagA — нижняя диагональ трехдиагональной матрицы
         double[] diagA = new double[intervalCount - 1];
         diagA[0] = 0;
         for (int i = 1; i < intervalCount - 1; i++)
             diagA[i] = intervalLengths[i];
 
+        // diagC — главная диагональ
         double[] diagC = new double[intervalCount - 1];
         for (int i = 0; i < intervalCount - 1; i++)
             diagC[i] = 2 * (intervalLengths[i] + intervalLengths[i + 1]);
 
+        // diagB — верхняя диагональ
         double[] diagB = new double[intervalCount - 1];
         for (int i = 0; i < intervalCount - 2; i++)
             diagB[i] = intervalLengths[i + 1];
         diagB[intervalCount - 2] = 0;
 
+        // rhsVector — правая часть системы уравнений
         double[] rhsVector = new double[intervalCount - 1];
         for (int i = 0; i < intervalCount - 1; i++)
         {
-            double slopeNext = (y[i + 2] - y[i + 1]) / intervalLengths[i + 1];
-            double slopePrev = (y[i + 1] - y[i]) / intervalLengths[i];
-            rhsVector[i] = 6 * (slopeNext - slopePrev);
+            double slopeNext = (y[i + 2] - y[i + 1]) / intervalLengths[i + 1];  // Наклон следующего отрезка
+            double slopePrev = (y[i + 1] - y[i]) / intervalLengths[i];         // Наклон предыдущего отрезка
+            rhsVector[i] = 6 * (slopeNext - slopePrev);                        // Формула для С
         }
 
-        double[] resultVector = TridiagonalMatrixSolver(diagA, diagC, diagB, rhsVector);
+        // Решаем систему методом прогонки
+        double[] resultVector = Matrix.TridiagonalMatrixSolver(diagA, diagC, diagB, rhsVector);
 
-        coeffC = new double[intervalCount + 1]; 
-
+        // Заполняем коэффициенты C
+        coeffC = new Vector(intervalCount + 1);
         for (int i = 0; i < intervalCount - 1; i++)
             coeffC[i + 1] = resultVector[i];
 
-        coeffC[0] = 0;
-        coeffC[intervalCount] = 0; 
+        coeffC[0] = 0;                     // Граничное условие: C[0] = 0
+        coeffC[intervalCount] = 0;         // Граничное условие: C[n] = 0
 
-        coeffD = new double[intervalCount];
+        // Заполняем коэффициенты D
+        coeffD = new Vector(intervalCount);
         for (int i = 0; i < intervalCount; i++)
         {
             if (i == 0)
@@ -71,7 +89,8 @@ public class Spline
                 coeffD[i] = (coeffC[i] - coeffC[i - 1]) / intervalLengths[i];
         }
 
-        coeffB = new double[intervalCount];
+        // Заполняем коэффициенты B
+        coeffB = new Vector(intervalCount);
         for (int i = 0; i < intervalCount; i++)
         {
             coeffB[i] = (intervalLengths[i] / 2) * coeffC[i + 1]
@@ -80,12 +99,16 @@ public class Spline
         }
     }
 
+    // Метод интерполяции в точке xt
     public double Interpolate(double xt)
     {
+        // Если точка вне диапазона — возвращаем NaN
         if (xt < x[0] || xt > x[intervalCount])
             return double.NaN;
 
         int interval = 0;
+
+        // Находим нужный интервал
         for (int i = 0; i < intervalCount; i++)
         {
             if (xt >= x[i] && xt <= x[i + 1])
@@ -95,6 +118,7 @@ public class Spline
             }
         }
 
+        // Вычисляем значение сплайна в точке xt
         double dx = xt - x[interval];
         double value = y[interval] +
                        coeffB[interval] * dx +
@@ -102,32 +126,5 @@ public class Spline
                        (coeffD[interval] / 6) * Math.Pow(dx, 3);
 
         return value;
-    }
-
-    private static double[] TridiagonalMatrixSolver(double[] a, double[] b, double[] c, double[] d)
-    {
-        int n = d.Length;
-        double[] p = new double[n];
-        double[] q = new double[n];
-        double[] solution = new double[n];
-
-        p[0] = -c[0] / b[0];
-        q[0] = d[0] / b[0];
-
-        for (int i = 1; i < n; i++)
-        {
-            double denom = b[i] + a[i - 1] * p[i - 1];
-            p[i] = -c[i] / denom;
-            q[i] = (d[i] - a[i - 1] * q[i - 1]) / denom;
-        }
-
-        solution[n - 1] = q[n - 1];
-
-        for (int i = n - 2; i >= 0; i--)
-        {
-            solution[i] = p[i] * solution[i + 1] + q[i];
-        }
-
-        return solution;
     }
 }
